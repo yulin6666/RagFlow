@@ -1,0 +1,274 @@
+{
+  "name": "RagFlow - PDF Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "process-pdf",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "process-pdf"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.fileUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Download PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract text from PDF binary data using basic text extraction\n// n8n has the PDF binary in $input.item.binary.data\nconst items = $input.all();\nconst item = items[0];\n\nconst documentId = $('Webhook').first().json.body.documentId;\nconst filename = $('Webhook').first().json.body.filename;\n\n// Get binary PDF data\nconst binaryData = item.binary?.data;\nif (!binaryData) {\n  throw new Error('No binary data received from PDF download');\n}\n\n// Convert binary to buffer and extract text\n// n8n Code node can access Buffer\nconst buffer = Buffer.from(binaryData.data, 'base64');\n\n// Simple PDF text extraction - look for text between BT...ET markers\nlet text = '';\nconst pdfString = buffer.toString('latin1');\n\n// Extract readable text using regex patterns for PDF streams\nconst streamMatches = pdfString.match(/stream[\\s\\S]*?endstream/g) || [];\nfor (const stream of streamMatches) {\n  // Look for text operators Tj, TJ, '\n  const textMatches = stream.match(/\\(([^)]+)\\)\\s*Tj/g) || [];\n  for (const match of textMatches) {\n    const extracted = match.replace(/\\(([^)]+)\\)\\s*Tj/, '$1');\n    text += extracted + ' ';\n  }\n  \n  // Also look for TJ arrays\n  const tjMatches = stream.match(/\\[([^\\]]+)\\]\\s*TJ/g) || [];\n  for (const match of tjMatches) {\n    const parts = match.match(/\\(([^)]+)\\)/g) || [];\n    for (const part of parts) {\n      text += part.replace(/[()]/g, '') + ' ';\n    }\n  }\n}\n\n// Fallback: extract any readable ASCII text from the PDF\nif (text.trim().length < 100) {\n  const asciiMatches = pdfString.match(/[\\x20-\\x7E]{4,}/g) || [];\n  text = asciiMatches\n    .filter(s => !/^\\/[A-Za-z]/.test(s)) // skip PDF operators\n    .filter(s => !/(endobj|endstream|xref|trailer|startxref|%%EOF)/.test(s))\n    .join(' ');\n}\n\nif (!text || text.trim().length < 10) {\n  throw new Error(`Could not extract text from PDF: ${filename}. The PDF may be image-based or encrypted.`);\n}\n\nreturn [{\n  json: {\n    documentId,\n    filename,\n    text: text.trim(),\n    charCount: text.length\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Extract Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split text into overlapping chunks\nconst item = $input.first();\nconst { documentId, filename, text } = item.json;\n\nconst CHUNK_SIZE = 800;\nconst CHUNK_OVERLAP = 200;\n\nconst chunks = [];\nlet start = 0;\nlet chunkIndex = 0;\n\nwhile (start < text.length) {\n  const end = Math.min(start + CHUNK_SIZE, text.length);\n  let chunk = text.slice(start, end);\n  \n  // Try to split at sentence boundary\n  if (end < text.length) {\n    const lastPeriod = chunk.lastIndexOf('. ');\n    const lastNewline = chunk.lastIndexOf('\\n');\n    const splitAt = Math.max(lastPeriod, lastNewline);\n    if (splitAt > CHUNK_SIZE * 0.5) {\n      chunk = text.slice(start, start + splitAt + 1);\n    }\n  }\n  \n  chunks.push({\n    json: {\n      documentId,\n      filename,\n      chunkIndex,\n      content: chunk.trim(),\n      totalChunks: 0 // will be updated\n    }\n  });\n  \n  chunkIndex++;\n  start = end - CHUNK_OVERLAP;\n  if (start >= text.length) break;\n}\n\n// Update totalChunks\nfor (const chunk of chunks) {\n  chunk.json.totalChunks = chunks.length;\n}\n\nreturn chunks;"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000004",
+      "name": "Split Chunks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/embeddings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "http://localhost:3000"
+            },
+            {
+              "name": "X-Title",
+              "value": "RagFlow"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "openai/text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000005",
+      "name": "Generate Embedding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "openrouter-api",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare Pinecone upsert payload\nconst embeddingResponse = $input.first().json;\nconst chunkData = $('Split Chunks').item.json;\n\nconst vector = embeddingResponse.data?.[0]?.embedding;\nif (!vector || !Array.isArray(vector)) {\n  throw new Error('No embedding returned from OpenRouter: ' + JSON.stringify(embeddingResponse));\n}\n\nconst vectorId = `${chunkData.documentId}_chunk_${chunkData.chunkIndex}`;\n\nreturn [{\n  json: {\n    vectors: [{\n      id: vectorId,\n      values: vector,\n      metadata: {\n        documentId: chunkData.documentId,\n        filename: chunkData.filename,\n        chunkIndex: chunkData.chunkIndex,\n        content: chunkData.content.substring(0, 1000), // Pinecone metadata limit\n        pageEstimate: Math.floor(chunkData.chunkIndex / 3) + 1\n      }\n    }],\n    documentId: chunkData.documentId,\n    totalChunks: chunkData.totalChunks,\n    chunkIndex: chunkData.chunkIndex\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000006",
+      "name": "Prepare Vector",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $env.PINECONE_INDEX_HOST }}/vectors/upsert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vectors: $json.vectors }) }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000007",
+      "name": "Upsert to Pinecone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "pinecone-api",
+          "name": "Pinecone API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// After all chunks are processed, check if this is the last chunk\n// and update document status in PostgreSQL\nconst chunkData = $('Prepare Vector').item.json;\n\nreturn [{\n  json: {\n    documentId: chunkData.documentId,\n    chunkIndex: chunkData.chunkIndex,\n    totalChunks: chunkData.totalChunks,\n    isLastChunk: chunkData.chunkIndex === chunkData.totalChunks - 1\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000008",
+      "name": "Check Last Chunk",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-last-chunk",
+              "leftValue": "={{ $json.isLastChunk }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000009",
+      "name": "Is Last Chunk?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE documents SET status = 'ready', chunk_count = {{ $json.totalChunks }}, processed_at = NOW() WHERE id = '{{ $json.documentId }}'",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000010",
+      "name": "Update DB Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2220, 200],
+      "credentials": {
+        "postgres": {
+          "id": "ragflow-db",
+          "name": "RagFlow Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"documentId\": \"{{ $('Webhook').first().json.body.documentId }}\", \"chunksProcessed\": {{ $('Check Last Chunk').item.json.totalChunks }} }"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000011",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2440, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"chunkIndex\": {{ $json.chunkIndex }}, \"totalChunks\": {{ $json.totalChunks }} }"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000012",
+      "name": "Respond Chunk OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2220, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Download PDF", "type": "main", "index": 0 }]
+      ]
+    },
+    "Download PDF": {
+      "main": [
+        [{ "node": "Extract Text", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Text": {
+      "main": [
+        [{ "node": "Split Chunks", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Chunks": {
+      "main": [
+        [{ "node": "Generate Embedding", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Embedding": {
+      "main": [
+        [{ "node": "Prepare Vector", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Vector": {
+      "main": [
+        [{ "node": "Upsert to Pinecone", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert to Pinecone": {
+      "main": [
+        [{ "node": "Check Last Chunk", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Last Chunk": {
+      "main": [
+        [{ "node": "Is Last Chunk?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Last Chunk?": {
+      "main": [
+        [{ "node": "Update DB Status", "type": "main", "index": 0 }],
+        [{ "node": "Respond Chunk OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update DB Status": {
+      "main": [
+        [{ "node": "Respond Success", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-07-27T00:00:00.000Z",
+  "versionId": "ragflow-pdf-v1"
+}
