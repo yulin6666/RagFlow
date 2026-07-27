@@ -99,10 +99,10 @@ Each workflow needs these credentials:
 #### PostgreSQL
 - **Credential Type**: Postgres
 - **Name**: `RagFlow Database`
-- **Host**: `host.docker.internal`
+- **Host**: `postgres` (container hostname inside Docker network)
 - **Database**: `ragflow_db`
-- **User**: `postgres`
-- **Password**: `ragflow123`
+- **User**: `root`
+- **Password**: `password`
 - **Port**: `5432`
 
 ### 3. Activate Workflows
