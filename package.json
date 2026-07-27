@@ -1,0 +1,33 @@
+{
+  "name": "ragflow",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "setup": "./setup.sh",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm --workspace=@ragflow/backend run start:dev",
+    "dev:frontend": "npm --workspace=@ragflow/frontend run dev",
+    "build": "npm run prisma:generate && npm run build:backend && npm run build:frontend",
+    "build:backend": "npm --workspace=@ragflow/backend run build",
+    "build:frontend": "npm --workspace=@ragflow/frontend run build",
+    "start:backend": "npm --workspace=@ragflow/backend run start:prod",
+    "start:frontend": "npm --workspace=@ragflow/frontend run start",
+    "prisma:generate": "npm --workspace=@ragflow/database run db:generate",
+    "prisma:migrate": "npm --workspace=@ragflow/database run db:migrate:deploy",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1"
+  }
+}
