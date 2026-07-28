@@ -1,0 +1,28 @@
+Summary
+Advanced Digital Automotive Group (ADAG) is a US-based digital marketing agency specializing in automotive SEO and digital marketing. We're building out our AI automation capability from the ground up and need a hands-on developer who can both build lead-gen automation now and architect a broader agentic system over time.
+This isn't a "connect a few Zapier steps" gig. We need someone who has actually built and shipped AI agents that do real work autonomously — not just wired together no-code tools.
+Phase 1 — immediate priority:
+    • Build automated lead generation pipelines (prospect sourcing, enrichment, qualification, CRM handoff)
+    • Automate sales pipeline touchpoints (outreach sequencing, follow-up logic, lead scoring)
+    • Integrate with our CRM/ATS stack (Zoho, plus adjacent tools)
+Phase 2 — ongoing build-out:
+    • Design and deploy AI agents capable of operating across multiple platforms in our digital marketing stack (ad platforms, reporting tools, SEO tools, client-facing dashboards)
+    • Build agent orchestration with proper memory, tool-calling, error handling, and monitoring — not fragile one-off scripts
+    • Own the technical architecture as this becomes a core internal system, not a side project
+What we need to see from you
+    • Real, verifiable examples of AI agents or automation systems you've built and deployed (not tutorials, not personal experiments only)
+    • Comfort with Python and at least one agent framework (LangChain, LangGraph, CrewAI, AutoGen, or a custom orchestration approach you can defend)
+    • Experience with automation platforms (n8n, Make, Zapier) AND the judgment to know when NOT to use them
+    • API integration experience — REST, webhooks, auth flows
+    • Some exposure to CRM/marketing automation tools (Zoho, HubSpot, Salesforce, GoHighLevel, or similar)
+Nice to have
+    • Experience in automotive, digital marketing, or agency environments
+    • Web scraping / data enrichment tooling experience
+    • RAG / vector database experience (Pinecone, Weaviate, etc.)
+    • SEO or paid media platform familiarity (Google Ads, Meta, GA4)
+Application requirements
+Please answer the following in your proposal (generic/templated proposals will be skipped):
+    1. Link to one AI agent or automation system you personally built — what did it do, what stack, and what broke that you had to fix?
+    2. What's the difference, in your own words, between a "workflow automation" and an "agent"? Where's the line for you?
+    3. Describe a lead-gen or sales automation you've built. What was the measurable outcome?
+    4. What's your availability (hours/week) and time zone overlap with MST (Mountain Standard Time, US)?

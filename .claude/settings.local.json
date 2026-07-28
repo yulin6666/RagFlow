@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm \"/Users/lindediannao/Documents/project/RagFlow/产品设计文档\")",
+      "Bash(mkdir -p \"/Users/lindediannao/Documents/project/RagFlow/产品设计文档\")",
+      "Bash(chmod:*)",
+      "Bash(bash setup.sh)",
+      "Bash(docker ps:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s http://localhost:3001/api/documents)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(npm install:*)",
+      "Bash(pkill -f \"nest start\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git:*)",
+      "Bash(kill 84745)",
+      "Bash(curl -s http://localhost:5678/healthz)",
+      "Bash(python3:*)",
+      "Bash(head -10 docker inspect self-hosted-ai-starter-kit-postgres-1 --format '{{json .NetworkSettings.Networks}}')",
+      "Bash(kill:*)",
+      "Bash(pip3 install:*)",
+      "Bash(curl -I http://localhost:3001/uploads/1785227787437-test_company_handbook.pdf)",
+      "Bash(curl -X POST http://localhost:3001/api/documents/upload -F \"file=@/Users/lindediannao/Documents/project/RagFlow/test_company_handbook.pdf\")",
+      "Bash(curl -I http://localhost:5678/webhook/process-pdf)",
+      "Bash(docker exec:*)"
+    ]
+  }
+}

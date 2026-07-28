@@ -25,6 +25,11 @@ export class DocumentsService {
 
   async uploadDocument(file: Express.Multer.File) {
     try {
+      // Ensure uploads directory exists
+      if (!fs.existsSync(this.uploadDir)) {
+        fs.mkdirSync(this.uploadDir, { recursive: true });
+      }
+
       // Save file to disk
       const filename = `${Date.now()}-${file.originalname}`;
       const filepath = path.join(this.uploadDir, filename);
@@ -45,16 +50,16 @@ export class DocumentsService {
 
       // Trigger n8n workflow for processing
       try {
-        await axios.post(`${this.n8nWebhookUrl}/process-pdf`, {
-          documentId: document.id,
-          fileUrl: `http://localhost:3001${fileUrl}`,
-          filename: file.originalname,
-        });
-
-        // Update status to processing
+        // Mark as processing before triggering n8n
         await this.prisma.document.update({
           where: { id: document.id },
           data: { status: 'processing' },
+        });
+
+        await axios.post(`${this.n8nWebhookUrl}/process-pdf`, {
+          documentId: document.id,
+          fileUrl: `http://host.docker.internal:3001${fileUrl}`,
+          filename: file.originalname,
         });
       } catch (error) {
         console.error('Failed to trigger n8n workflow:', error.message);

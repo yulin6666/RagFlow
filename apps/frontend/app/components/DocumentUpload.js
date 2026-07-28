@@ -66,7 +66,7 @@ export default function DocumentUpload({ onUploadSuccess }) {
       const data = await response.json()
       alert('File uploaded successfully! Processing started...')
       setFile(null)
-      onUploadSuccess()
+      onUploadSuccess(data.id)
     } catch (error) {
       console.error('Upload error:', error)
       alert('Upload failed. Please try again.')

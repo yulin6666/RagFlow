@@ -1,0 +1,126 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3183 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+(RagFlow Test Document - AI Knowledge Base) Tj
+/F1 11 Tf
+0 -30 Td
+(Introduction to Artificial Intelligence: Artificial intelligence \(AI\) is the) Tj
+0 -16 Td
+(simulation of human intelligence processes by machines, especially computer) Tj
+0 -16 Td
+(systems. AI research has been highly successful in developing effective) Tj
+0 -16 Td
+(techniques for solving a wide range of problems.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Machine Learning Fundamentals: Machine learning is a subset of artificial) Tj
+0 -16 Td
+(intelligence that provides systems the ability to automatically learn and) Tj
+0 -16 Td
+(improve from experience without being explicitly programmed. It focuses on) Tj
+0 -16 Td
+(developing computer programs that can access data and use it to learn for) Tj
+0 -16 Td
+(themselves.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Deep Learning and Neural Networks: Deep learning is part of a broader family of) Tj
+0 -16 Td
+(machine learning methods based on artificial neural networks with representation) Tj
+0 -16 Td
+(learning. Learning can be supervised, semi-supervised or unsupervised. Deep) Tj
+0 -16 Td
+(learning architectures include deep neural networks, recurrent neural networks,) Tj
+0 -16 Td
+(and convolutional neural networks.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Natural Language Processing: Natural language processing \(NLP\) is a subfield of) Tj
+0 -16 Td
+(linguistics, computer science, and artificial intelligence concerned with the) Tj
+0 -16 Td
+(interactions between computers and human language. It focuses on how to program) Tj
+0 -16 Td
+(computers to process and analyze large amounts of natural language data.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Large Language Models: Large language models \(LLMs\) are advanced AI systems) Tj
+0 -16 Td
+(trained on vast amounts of text data. Models like GPT-4, Claude, and Qwen are) Tj
+0 -16 Td
+(capable of generating human-like text, answering questions, summarizing) Tj
+0 -16 Td
+(documents, and performing complex reasoning tasks.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Vector Databases and RAG: Retrieval-Augmented Generation \(RAG\) combines the) Tj
+0 -16 Td
+(power of large language models with the ability to retrieve relevant information) Tj
+0 -16 Td
+(from a knowledge base. Vector databases like Pinecone store text embeddings and) Tj
+0 -16 Td
+(enable semantic search, allowing AI systems to find the most relevant context) Tj
+0 -16 Td
+(for answering user questions.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(RagFlow Project Overview: This RagFlow project is an intelligent document Q&A) Tj
+0 -16 Td
+(system. Users can upload PDF documents, which are processed and stored in a) Tj
+0 -16 Td
+(Pinecone vector database. When users ask questions, the system retrieves) Tj
+0 -16 Td
+(relevant document chunks and uses an LLM to generate accurate, context-aware) Tj
+0 -16 Td
+(answers.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(Conclusion: The combination of document processing, vector search, and large) Tj
+0 -16 Td
+(language models creates a powerful system for knowledge retrieval. This) Tj
+0 -16 Td
+(technology enables organizations to make their document repositories searchable) Tj
+0 -16 Td
+(and interactive through natural language queries.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000003476 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3546
+%%EOF

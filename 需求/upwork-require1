@@ -1,0 +1,32 @@
+Summary
+We are looking for an experienced AI Developer to design and build a sophisticated custom AI assistant that serves as an intelligent extension of my personal and business memory. This assistant will manage emails, automate workflows, and integrate deeply with my operations across multiple businesses (pharmacy, property management, and assisted living). The goal is to create a powerful, reliable AI system that overcomes the limitations of standard ChatGPT by maintaining long-term context, recalling critical information on demand, and proactively supporting daily operations. 
+
+Core Requirements 
+✅ Persistent AI Memory System 
+● Store and intelligently retrieve past conversations, decisions, insights, and business data 
+● Enable natural, context-aware recall (e.g., “What was my decision regarding hiring last month?”) 
+● Seamlessly integrate with business operations and historical data from multiple ventures 
+
+✅ Intelligent Email Management & Automation 
+● Automatically sort, categorize, and prioritize incoming emails (urgent, business, personal, etc.) 
+● Generate concise summaries of email threads with key takeaways 
+● Suggest context-aware auto-replies based on my previous communication style 
+● Track follow-ups and set intelligent reminders for important messages 
+● Integrate with Gmail and/or Outlook APIs 
+
+✅ Business Workflow Automation & Integration 
+● Sync with Google Calendar, Slack, CRM systems, and project management tools 
+● Automate task creation, tracking, and follow-up reminders 
+● Deliver daily briefings with priorities, action items, and critical updates 
+
+✅ Security, Scalability & Performance 
+● Implement secure data storage using Google Cloud, AWS, or equivalent enterprise-grade solutions 
+● Ensure the system is reliable, efficient, and built for future expansion Ideal Candidate Profile 
+● Proven experience building custom AI assistants with persistent memory using GPT-4 / GPT-4o, LangChain (or LangGraph), and vector databases (Pinecone, Weaviate, ChromaDB, etc.) 
+● Strong expertise in email automation and API integrations (Gmail API, Outlook API) 
+● Full-stack development skills — Python and/or Node.js preferred, with React as a plus 
+● Hands-on experience with workflow automation tools (Zapier, Make.com, n8n, etc.) and database architecture 
+● Demonstrated success delivering production-ready AI chatbots or personal AI agents Compensation & Engagement 
+● Budget: $20 – $45 per hour or $5,000 – $15,000 fixed price for a solid MVP 
+● Timeline: 4–6 weeks for initial MVP 
+● Duration: Strong preference for a long-term collaboration (initial 3–6 months with potential for ongoing development and maintenance) If you have successfully built AI systems with persistent memory, intelligent email handling, and deep business integrations, I’d love to review your portfolio and discuss this opportunity.

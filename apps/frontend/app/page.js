@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import DocumentUpload from './components/DocumentUpload'
 import DocumentList from './components/DocumentList'
 import ChatInterface from './components/ChatInterface'
@@ -9,10 +9,32 @@ export default function Home() {
   const [documents, setDocuments] = useState([])
   const [selectedDocument, setSelectedDocument] = useState(null)
   const [loading, setLoading] = useState(false)
+  const pollingRef = useRef(null)
 
   useEffect(() => {
     fetchDocuments()
   }, [])
+
+  // Auto-poll when any document is still processing
+  useEffect(() => {
+    const hasProcessing = documents.some(
+      (doc) => doc.status === 'pending' || doc.status === 'processing'
+    )
+
+    if (hasProcessing && !pollingRef.current) {
+      pollingRef.current = setInterval(fetchDocuments, 3000)
+    } else if (!hasProcessing && pollingRef.current) {
+      clearInterval(pollingRef.current)
+      pollingRef.current = null
+    }
+
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+        pollingRef.current = null
+      }
+    }
+  }, [documents])
 
   const fetchDocuments = async () => {
     try {

@@ -1,0 +1,279 @@
+Needs to hire 5 Freelancers
+Summary
+We are looking for a highly experienced AI Automation Engineer to design and build a sophisticated AI Agent ecosystem that automates the day-to-day operations of our engineering consulting and special inspections company.
+
+This is not a simple chatbot project.
+
+We are looking for someone who understands modern AI agent frameworks (OpenAI, LangGraph, CrewAI, AutoGen, MCP, etc.) and can build a secure business workflow automation platform that performs real work across multiple software systems.
+
+Our long-term vision is to build an AI Operations Manager capable of handling 80–90% of our administrative and project management tasks while maintaining human approval where required.
+
+Project Goal
+
+Build an AI Agent platform that acts like a virtual operations team capable of:
+
+Reading emails
+Understanding client requests
+Creating proposals
+Sending invoices
+Scheduling inspections
+Following up with clients
+Updating QuickBooks
+Completing engineering forms
+Assigning work to employees
+Managing inspection workflows
+Tracking project status
+Phase 1 Requirements
+1. Email Intake AI Agent
+
+Monitor Gmail continuously.
+
+The AI should:
+
+Read incoming emails
+Categorize requests
+Detect new projects
+Detect inspection requests
+Detect proposal requests
+Detect payment notifications
+Detect scheduling requests
+Detect customer questions
+
+Automatically create internal tasks.
+
+2. Proposal Agent
+
+Generate proposals automatically using predefined company templates.
+
+Examples:
+
+Special Inspection Proposal
+Structural Observation Proposal
+Concrete Testing Proposal
+Engineering Services Proposal
+
+Automatically:
+
+Calculate pricing
+Select predefined service SKUs
+Create proposal PDFs
+Email proposal to client
+Log proposal history
+3. QuickBooks AI Agent
+
+Integrate with QuickBooks Online.
+
+Functions include:
+
+Create customers
+Create estimates
+Convert estimates to invoices
+Send invoices
+Apply received payments
+Verify payments
+Reconcile invoice status
+Generate statements
+Create recurring invoices
+Use predefined service SKUs
+4. Inspection Scheduling Agent
+
+Automatically:
+
+Read inspection requests
+Determine inspection type
+Determine project location
+Estimate inspection duration
+Assign inspector
+Create calendar event
+Email inspector
+Email customer confirmation
+Update CRM
+5. Employee Task Assignment Agent
+
+Assign work automatically.
+
+Examples:
+
+Inspector assignments
+Engineering calculations
+Report writing
+Proposal preparation
+Client follow-up
+Permit filing
+Material testing
+
+Integrations may include:
+
+Gmail
+Google Calendar
+CRM
+Slack (optional)
+Microsoft Teams (optional)
+6. Follow-Up Agent
+
+Automatically monitor:
+
+Proposal expiration
+Outstanding invoices
+Missing documents
+Inspector reports
+Customer approvals
+Vendor responses
+Project deadlines
+
+Generate reminder emails automatically.
+
+7. NYC DOB Agent
+
+Automate repetitive DOB work where technically and legally appropriate.
+
+Examples include:
+
+Complete TR1 forms
+Complete TR8 forms
+Populate DOB PDF forms
+Retrieve project information from DOB BIS
+Retrieve project information from DOB NOW
+Prepare filing documents
+Assist with Special Inspection sign-offs (with appropriate user authentication and approval)
+Validate filing information before submission
+
+Note: Any action involving authenticated government systems or legally binding submissions must include secure authentication and configurable human approval before final submission.
+
+8. PDF Automation Agent
+
+Read and complete engineering documents.
+
+Examples:
+
+TR1
+TR8
+PW1
+AI1
+Engineering forms
+Client forms
+
+Extract information from:
+
+Email
+Existing PDFs
+DOB records
+Company database
+
+Generate completed forms automatically.
+
+9. Payment Verification Agent
+
+Monitor:
+
+QuickBooks payments
+ACH notifications
+Credit card payments
+
+Automatically:
+
+Mark invoices paid
+Notify accounting
+Update project status
+10. Inspection Completion Agent
+
+After inspection completion:
+
+Receive inspector report
+Verify required documents
+Generate invoice
+Send invoice
+Update QuickBooks
+Archive report
+Notify project manager
+Desired Technology Stack
+
+We are open to recommendations, but experience with the following is highly preferred:
+
+AI
+OpenAI API
+GPT-5.x
+LangGraph
+CrewAI
+AutoGen
+MCP (Model Context Protocol)
+AI Agent orchestration
+Backend
+Python
+FastAPI
+Node.js (optional)
+Automation
+n8n
+Make.com
+Zapier
+Temporal
+Celery
+Databases
+PostgreSQL
+Supabase
+Pinecone (optional)
+Redis
+Integrations
+Gmail API
+Google Calendar API
+QuickBooks Online API
+Google Drive API
+PDF processing libraries
+OCR
+Document AI
+Security Requirements
+
+Experience implementing:
+
+OAuth
+Google Workspace authentication
+QuickBooks authentication
+Secure credential management
+Role-based permissions
+Audit logs
+Human approval workflows for sensitive actions
+Encrypted storage of API keys
+Nice to Have
+
+Experience with:
+
+Construction industry software
+Engineering firms
+Project management systems
+CRM development
+PDF automation
+Government portals
+AI document extraction
+Computer Vision
+Voice AI
+AI assistants
+Deliverables
+Working AI multi-agent platform
+Source code
+Documentation
+Deployment instructions
+Database schema
+API documentation
+Admin dashboard
+Error logging
+Monitoring
+Testing
+To Apply
+
+Please include:
+
+Examples of AI agent systems you have built.
+Experience with LangGraph, CrewAI, AutoGen, MCP, or similar frameworks.
+Experience integrating with QuickBooks Online APIs.
+Experience with Gmail and Google Workspace APIs.
+Experience automating PDF generation and form filling.
+Experience building secure approval workflows for authenticated systems.
+GitHub portfolio or live demos.
+Your recommended technology stack for this project.
+Estimated timeline for an MVP and a production-ready version.
+Your availability for a long-term partnership.
+Budget
+
+Open to discussion based on experience and proposed architecture.
+
+This is expected to become a long-term project with continuous feature development and AI expansion. We are looking for a technical partner who can evolve this platform into an intelligent operations system for our engineering business.
