@@ -24,7 +24,23 @@
       "Bash(curl -I http://localhost:3001/uploads/1785227787437-test_company_handbook.pdf)",
       "Bash(curl -X POST http://localhost:3001/api/documents/upload -F \"file=@/Users/lindediannao/Documents/project/RagFlow/test_company_handbook.pdf\")",
       "Bash(curl -I http://localhost:5678/webhook/process-pdf)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(docker compose:*)",
+      "Bash(node -e \"require\\(''fs''\\)\")",
+      "Bash(node:*)",
+      "WebSearch",
+      "Bash(curl -L -o TR1-NYC-Real-Form.pdf \"http://nyc-prda-web.nyc.gov/assets/sbs/downloads/pdf/businesses/tr1_2014.pdf\")",
+      "Bash(curl -L -o TR8-NYC-Real-Form.pdf \"https://nyc-prda-web.nyc.gov/assets/buildings/pdf/tr8.pdf\")",
+      "Bash(ls -lh TR*.pdf)",
+      "Bash(curl -L -o TR1-Instructions.pdf \"https://gis.nyc.gov/assets/buildings/pdf/tr1ins_2008.pdf\")",
+      "WebFetch(domain:www1.nyc.gov)",
+      "Bash(DATABASE_URL=\"postgresql://root:password@localhost:5433/ragflow_db\" npx prisma migrate dev --name make-documentid-optional、)",
+      "Bash(DATABASE_URL=\"postgresql://root:password@localhost:5433/ragflow_db\" npx prisma migrate dev --name make-documentid-optional --create-only)",
+      "Bash(DATABASE_URL=\"postgresql://root:password@localhost:5433/ragflow_db\" npx prisma migrate deploy、)",
+      "Bash(PGPASSWORD=password psql -h localhost -p 5433 -U root -d ragflow_db -c \"ALTER TABLE chat_history ALTER COLUMN \\\\\"documentId\\\\\" DROP NOT NULL;\" 2>&1)",
+      "Bash(npx prisma:*)",
+      "Bash(PGPASSWORD=password psql -h localhost -p 5433 -U root -d ragflow_db -c \"\nCREATE TABLE IF NOT EXISTS chat_sessions \\(\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid\\(\\),\n  title TEXT NOT NULL,\n  \\\\\"createdAt\\\\\" TIMESTAMP DEFAULT now\\(\\)\n\\);\nALTER TABLE chat_history ADD COLUMN IF NOT EXISTS \\\\\"sessionId\\\\\" UUID REFERENCES chat_sessions\\(id\\) ON DELETE CASCADE;\nCREATE INDEX IF NOT EXISTS chat_history_session_idx ON chat_history\\(\\\\\"sessionId\\\\\"\\);\nCREATE INDEX IF NOT EXISTS chat_sessions_created_idx ON chat_sessions\\(\\\\\"createdAt\\\\\"\\);\n\" 2>&1)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

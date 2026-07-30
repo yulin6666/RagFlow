@@ -4,7 +4,6 @@ import {
   Get,
   Body,
   Param,
-  BadRequestException,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { QueryDto } from './dto/query.dto';
@@ -16,6 +15,21 @@ export class ChatController {
   @Post('query')
   async query(@Body() queryDto: QueryDto) {
     return this.chatService.query(queryDto);
+  }
+
+  @Get('sessions')
+  async getSessions() {
+    return this.chatService.getSessions();
+  }
+
+  @Get('sessions/:sessionId')
+  async getSessionMessages(@Param('sessionId') sessionId: string) {
+    return this.chatService.getSessionMessages(sessionId);
+  }
+
+  @Get('history/global')
+  async getGlobalHistory() {
+    return this.chatService.getGlobalHistory();
   }
 
   @Get('history/:documentId')

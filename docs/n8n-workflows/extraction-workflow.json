@@ -1,0 +1,186 @@
+{
+  "name": "RagFlow - Structured Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "extract",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-e-001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "extract"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-e-001",
+              "name": "jobId",
+              "value": "={{ $json.body.jobId }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-e-002",
+              "name": "documentId",
+              "value": "={{ $json.body.documentId }}",
+              "type": "string"
+            },
+            {
+              "id": "assign-e-003",
+              "name": "fields",
+              "value": "={{ $json.body.fields }}",
+              "type": "array"
+            },
+            {
+              "id": "assign-e-004",
+              "name": "fieldsJson",
+              "value": "={{ JSON.stringify($json.body.fields.map(f => f.label)) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-e-002",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Retrieve relevant document chunks for field extraction. Search broadly to find all mentions of the requested fields.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ragflow-docs",
+          "mode": "list",
+          "cachedResultName": "ragflow-docs"
+        },
+        "topK": 20,
+        "options": {
+          "filter": "={{ $('Parse Input').first().json.documentId ? JSON.stringify({ documentId: { '$eq': $('Parse Input').first().json.documentId } }) : '' }}"
+        }
+      },
+      "id": "node-e-003",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [680, 520],
+      "credentials": {
+        "pineconeApi": {
+          "id": "pinecone-api",
+          "name": "Pinecone API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "node-e-004",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [680, 700],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-api",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Extract the following fields from the document: ' + $('Parse Input').first().json.fieldsJson + '\\n\\nSearch the document thoroughly and return a JSON object where each key is the field name (in snake_case, matching the original field label converted to snake_case) and the value is the extracted text. If a field is not found, use null.\\n\\nReturn ONLY valid JSON, no explanation, no markdown code blocks. Example format: {\"project_name\": \"Acme Tower\", \"inspection_date\": \"2026-01-15\"}' }}",
+        "options": {
+          "systemMessage": "You are a precise document field extraction assistant. Your job is to extract specific data fields from documents.\n\nInstructions:\n1. Use the RAG tool to search for each field. Use the field name as your search query.\n2. Extract the exact value as it appears in the document — do not paraphrase.\n3. If a field appears multiple times, use the most prominent/first occurrence.\n4. Return ONLY a valid JSON object. No markdown, no code blocks, no explanation.\n5. Use null for fields not found in the document.\n\nField key naming: convert the field label to snake_case (e.g. 'Project Name' → 'project_name', 'Inspection Date' → 'inspection_date')."
+        }
+      },
+      "id": "node-e-005",
+      "name": "Extraction AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen-2.5-72b-instruct",
+        "options": {}
+      },
+      "id": "node-e-006",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [560, 520],
+      "credentials": {
+        "openAiApi": {
+          "id": "openrouter-openai-api",
+          "name": "OpenRouter (OpenAI-compatible)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output || '{}';\n\n// Strip markdown code blocks if present\nconst cleaned = raw\n  .replace(/^```json\\s*/i, '')\n  .replace(/^```\\s*/i, '')\n  .replace(/```\\s*$/i, '')\n  .trim();\n\nlet result = {};\ntry {\n  result = JSON.parse(cleaned);\n} catch (e) {\n  // Try extracting JSON from within the string\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try { result = JSON.parse(match[0]); } catch {}\n  }\n}\n\nreturn [{ json: { result } }];"
+      },
+      "id": "node-e-007",
+      "name": "Parse JSON Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ result: $json.result, jobId: $('Parse Input').first().json.jobId }) }}",
+        "options": {}
+      },
+      "id": "node-e-008",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Parse Input", "type": "main", "index": 0 }]]
+    },
+    "Parse Input": {
+      "main": [[{ "node": "Extraction AI Agent", "type": "main", "index": 0 }]]
+    },
+    "Extraction AI Agent": {
+      "main": [[{ "node": "Parse JSON Output", "type": "main", "index": 0 }]]
+    },
+    "Parse JSON Output": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [[{ "node": "Extraction AI Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [[{ "node": "Extraction AI Agent", "type": "ai_tool", "index": 0 }]]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [[{ "node": "Pinecone Vector Store", "type": "ai_embedding", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-07-29T00:00:00.000Z",
+  "versionId": "ragflow-extract-v1"
+}

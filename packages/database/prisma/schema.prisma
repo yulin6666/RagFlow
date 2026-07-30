@@ -22,15 +22,29 @@ model Document {
   uploadedAt    DateTime  @default(now())
   processedAt   DateTime?
 
-  chatHistory   ChatHistory[]
+  chatHistory     ChatHistory[]
+  extractionJobs  ExtractionJob[]
 
   @@map("documents")
 }
 
+model ChatSession {
+  id        String        @id @default(uuid())
+  title     String
+  createdAt DateTime      @default(now())
+  messages  ChatHistory[]
+
+  @@map("chat_sessions")
+  @@index([createdAt])
+}
+
 model ChatHistory {
   id          String   @id @default(uuid())
-  documentId  String
-  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId  String?
+  document    Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  sessionId   String?
+  session     ChatSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   question    String   @db.Text
   answer      String   @db.Text
@@ -40,7 +54,26 @@ model ChatHistory {
 
   @@map("chat_history")
   @@index([documentId])
+  @@index([sessionId])
   @@index([createdAt])
+}
+
+model ExtractionJob {
+  id          String    @id @default(uuid())
+  documentId  String
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  fields      Json      // [{ key: string, label: string }]
+  result      Json?     // { fieldKey: extractedValue }
+  status      String    @default("pending") // pending, processing, completed, failed, approved, rejected
+  reviewedAt  DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("extraction_jobs")
+  @@index([documentId])
+  @@index([status])
 }
 
 model AutomationLog {

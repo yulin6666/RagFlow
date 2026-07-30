@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
 
 export class QueryDto {
   @IsString()
@@ -6,6 +6,10 @@ export class QueryDto {
   question: string;
 
   @IsUUID()
-  @IsNotEmpty()
-  documentId: string;
+  @IsOptional()
+  documentId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  sessionId?: string;
 }

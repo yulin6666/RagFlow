@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DocumentsModule } from './documents/documents.module';
 import { ChatModule } from './chat/chat.module';
+import { ExtractionModule } from './extraction/extraction.module';
 import { PrismaService } from './common/prisma.service';
 
 @Module({
@@ -17,6 +18,7 @@ import { PrismaService } from './common/prisma.service';
     }),
     DocumentsModule,
     ChatModule,
+    ExtractionModule,
   ],
   providers: [PrismaService],
 })

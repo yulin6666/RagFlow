@@ -16,42 +16,40 @@ export class ChatService {
   }
 
   async query(queryDto: QueryDto) {
-    const { question, documentId } = queryDto;
+    const { question, documentId, sessionId } = queryDto;
 
-    // Verify document exists and is ready
-    const document = await this.prisma.document.findUnique({
-      where: { id: documentId },
-    });
-
-    if (!document) {
-      throw new BadRequestException('Document not found');
-    }
-
-    if (document.status !== 'ready') {
-      throw new BadRequestException(
-        `Document is not ready. Current status: ${document.status}`,
-      );
+    if (documentId) {
+      const document = await this.prisma.document.findUnique({
+        where: { id: documentId },
+      });
+      if (!document) throw new BadRequestException('Document not found');
+      if (document.status !== 'ready') {
+        throw new BadRequestException(`Document is not ready. Current status: ${document.status}`);
+      }
     }
 
     try {
-      // Call n8n RAG query workflow
       const response = await axios.post(
         `${this.n8nWebhookUrl}/rag-query`,
-        {
-          question,
-          documentId,
-        },
-        {
-          timeout: 30000, // 30 seconds timeout
-        },
+        { question, documentId: documentId || null },
+        { timeout: 30000 },
       );
 
       const { answer, sources } = response.data;
 
-      // Save chat history
+      // Resolve or create session
+      let resolvedSessionId = sessionId;
+      if (!resolvedSessionId) {
+        const session = await this.prisma.chatSession.create({
+          data: { title: question.slice(0, 40) },
+        });
+        resolvedSessionId = session.id;
+      }
+
       const chatHistory = await this.prisma.chatHistory.create({
         data: {
-          documentId,
+          documentId: documentId || null,
+          sessionId: resolvedSessionId,
           question,
           answer,
           sources: sources || [],
@@ -60,6 +58,7 @@ export class ChatService {
 
       return {
         id: chatHistory.id,
+        sessionId: resolvedSessionId,
         question,
         answer,
         sources,
@@ -73,10 +72,41 @@ export class ChatService {
     }
   }
 
+  async getSessions() {
+    const sessions = await this.prisma.chatSession.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      include: {
+        _count: { select: { messages: true } },
+      },
+    });
+    return sessions.map((s) => ({
+      id: s.id,
+      title: s.title,
+      createdAt: s.createdAt,
+      messageCount: s._count.messages,
+    }));
+  }
+
+  async getSessionMessages(sessionId: string) {
+    return this.prisma.chatHistory.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
   async getChatHistory(documentId: string) {
     return this.prisma.chatHistory.findMany({
       where: { documentId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
+      take: 50,
+    });
+  }
+
+  async getGlobalHistory() {
+    return this.prisma.chatHistory.findMany({
+      where: { documentId: null },
+      orderBy: { createdAt: 'asc' },
       take: 50,
     });
   }

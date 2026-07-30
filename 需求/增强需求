@@ -1,0 +1,132 @@
+增强路线图                                                                             
+                                                                                           
+  阶段1：强化对客户3的说服力（最优先）                                                   
+                                                                                           
+  1.1 多文档跨文件检索（当前最明显的缺口）                                                 
+                                                                                           
+  现在demo是"上传一个PDF，问这个PDF的问题"。客户3的场景是：一封邮件 + 历史提案 + 检查清单 →
+   AI综合多个来源回答。                                                                  
+                                                                                           
+  需要做：                                                                                 
+  - 前端：去掉"针对某个文档"的限制，支持全局问答（跨所有已上传文档）                     
+  - n8n：Pinecone查询时去掉documentId过滤，改为按相似度全局检索                            
+  - 答案来源显示多个文件名                                                               
+                                                                                           
+  1.2 结构化提取模式（直接对应PDF Automation Agent）                                     
+                                                                                           
+  当前只有"自由问答"。客户3需要从TR1/TR8表单里提取字段（项目名称、地址、检查日期、工程师签 
+  名...）。                                                                                
+                                                                                           
+  需要做：                                                                               
+  - 新增一个"提取模式"界面：用户选择文档 + 选择要提取的字段类型（或自定义字段）          
+  - 输出从段落文字变成结构化表格/JSON                                                      
+  - n8n里加一个结构化提取workflow，prompt让LLM输出JSON格式
+                                                                                           
+  这个功能是客户3的"PDF Automation Agent"的直接原型，说服力最强。                          
+                                                                                           
+  1.3 Human-in-the-loop审批界面                                                            
+                                                                                           
+  客户3强调"sensitive actions需要human approval before final                               
+  submission"，demo里要有这个流程的视觉体现。                                            
+                                                                                           
+  需要做：                                                                                 
+  - 提取完结构化数据后，不直接"提交"，而是显示一个"审批卡片"：AI建议的内容 + 编辑框 +    
+  确认/拒绝按钮                                                                            
+  - 后端记录审批状态（approved/rejected/pending）                                        
+  - 这不需要接真实的外部系统，UI层做出来即可                                               
+                                                                                           
+  ---                                                                                      
+  阶段2：强化对客户1的说服力                                                               
+                                                                                           
+  2.1 跨会话持久化记忆                                                                   
+                                                                                         
+  当前刷新页面聊天记录就丢了。客户1的核心诉求是"上个月的决策AI还记得"。                    
+   
+  需要做：                                                                                 
+  - 聊天历史已存PostgreSQL（schema里有chat_history表），但前端每次重新加载不读历史       
+  - 前端：进入聊天页时先拉取历史记录渲染出来                                               
+  - 加一个"记忆摘要"功能：每次对话结束后，让LLM生成一句摘要存到一个summary字段，下次对话时
+  注入到系统prompt里                                                                       
+                                                                                           
+  2.2 多集合/命名空间支持                                                                  
+                                                                                           
+  客户1有三个业务（药店、房产、养老院），需要知识隔离但又能跨业务检索。                    
+                                                                                           
+  需要做：                                                                                 
+  - 文档上传时加"所属业务"标签                                                           
+  - Pinecone查询时可按namespace过滤，也可全局搜                                            
+  - 前端加一个业务切换下拉菜单                                                           
+                                                                                           
+  ---
+  阶段3：应对客户2（较低优先）                                                             
+                                                                                           
+  客户2需要"动态agent决策"，这跟当前demo方向差异最大，建议等前两个阶段完成再考虑，或者单独
+  做一个不同的demo方向。  
+
+
+    第三步：前端功能验证路径                                                              
+                          
+  验证 1.2 结构化提取
+                                                                                          
+  1. 打开主页，上传一个 PDF，等左侧列表里状态变成 ready                                   
+  2. 点击该文档的 Select 按钮                                                             
+  3. 右侧点 Extract Fields tab                                                            
+  4. 下拉选 "Special Inspection Form"（或你上传的文档类型对应的模板）                     
+  5. 点 Extract fields，状态应该变成 processing                                           
+  6. 等几秒刷新页面，状态变 completed，字段值显示在表格里                                 
+                                                                                          
+  验证 1.3 审批流程                                                                       
+                                                                                          
+  1. 提取完成后点 Review & Approve                                                        
+  2. 表格变成可编辑输入框，修改任意一个字段值
+  3. 点 Approve & Submit，状态变绿色 approved                                             
+  4. 或点 Reject，状态变红色 rejected                                                     
+                                                                                          
+  验证 1.1 全局聊天                                                                       
+                                                                                          
+  1. 上传两个不同 PDF                                                                     
+  2. 主页右上角点 Chat with all documents →（或导航栏 Chat）                            
+  3. 提问一个横跨两个文档的问题                                                           
+  4. 答案来源里应该显示不同文件名                                                         
+                                                                                          
+  ---                                                                                     
+  看什么说明功能正常                                                                      
+                                                                                          
+  ┌──────────┬─────────────────────────────────────────────────────────┐
+  │   功能   │                        正常表现                         │                  
+  ├──────────┼─────────────────────────────────────────────────────────┤                  
+  │ 提取触发 │ 点击后卡片出现，status 显示 processing                  │                  
+  ├──────────┼─────────────────────────────────────────────────────────┤                  
+  │ 提取完成 │ status 变 completed，字段表格有内容                     │                  
+  ├──────────┼─────────────────────────────────────────────────────────┤                  
+  │ 审批     │ Review 界面字段可编辑，批准后显示绿色 approved + 时间戳 │                  
+  ├──────────┼─────────────────────────────────────────────────────────┤                  
+  │ 全局聊天 │ 来源引用显示多个文件名   
+
+  ⏺ 两个有关联的 PDF 生成好了：
+
+  Skyline-Tower-Project-Spec.pdf（项目规格书）
+  - 项目地址、承包商、合同编号
+  - 规定了特殊检查要求：Level 12 检查目标日期 January 15, 2026
+  - 规定检查员必须是 Robert Chen PE
+  - 规定用 TR-1 表单记录
+
+  TR1-Skyline-Tower-Level12-Inspection.pdf（TR-1 检查报告）
+  - 同一个项目、同一个地址、同一个承包商
+  - 实际检查日期 January 15, 2026（和规格书里的计划日期一致）
+  - Robert Chen PE 签发（和规格书指定的检查员一致）
+  - 引用了合同编号 ST-SPEC-001
+
+  ---
+  跨文档测试问题：
+
+  把两个文件都上传，等 ready 后点 "Chat with All Documents"，提问：
+
+  Who is the inspector of record and did the actual inspection match the
+  planned schedule?
+
+  What contract number links the inspection report to the project
+  specification?
+
+  Was the inspection on Level 12 completed on time according to the project
+  plan?

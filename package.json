@@ -24,7 +24,8 @@
     "docker:restart": "docker-compose restart"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "pdfkit": "^0.19.1"
   },
   "dependencies": {
     "class-transformer": "^0.5.1",
