@@ -39,5 +39,9 @@ yarn-error.log*
 .vscode/
 .idea/
 
-# Prisma
-prisma/migrations/
+# Prisma - keep migrations committed for Railway deploy
+# prisma/migrations/  <-- do NOT ignore migrations
+
+# Uploads (runtime files, not versioned)
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep

@@ -30,8 +30,9 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  const port = process.env.BACKEND_PORT || 3001;
-  await app.listen(port);
+  // Railway assigns PORT dynamically; BACKEND_PORT is used locally
+  const port = process.env.PORT || process.env.BACKEND_PORT || 3001;
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 RagFlow Backend running on http://localhost:${port}`);
   console.log(`📚 API endpoints: http://localhost:${port}/api`);

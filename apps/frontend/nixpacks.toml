@@ -1,8 +1,21 @@
-[build]
-providers = ["nixpacks"]
+# Frontend Service Configuration
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = [
+  "cd /app/apps/frontend",
+  "npm install --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = [
+  "cd /app/apps/frontend",
+  "npm run build"
+]
 
 [start]
-cmd = "npm run start"
+cmd = "cd apps/frontend && npm run start"
 
 [env]
 NODE_ENV = "production"
