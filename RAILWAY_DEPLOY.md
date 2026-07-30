@@ -1,161 +1,164 @@
-# RagFlow — Railway Deployment Guide
+# RagFlow — Railway 部署指南
 
-## Architecture Overview
+## 架构概览
 
-This project runs **3 services** on Railway:
+Railway 上部署 **3 个服务**：
 
-| Service | Type | Description |
-|---------|------|-------------|
-| `ragflow-backend` | GitHub repo | NestJS API + file uploads |
-| `ragflow-frontend` | GitHub repo | Next.js frontend |
-| `Postgres` | Railway plugin | Managed PostgreSQL |
+| 服务 | 类型 | 说明 |
+|------|------|------|
+| `ragflow-backend` | GitHub 仓库 | NestJS API + 文件上传 |
+| `ragflow-frontend` | GitHub 仓库 | Next.js 前端 |
+| `Postgres` | Railway 插件 | 托管 PostgreSQL 数据库 |
 
-**n8n** is already deployed at `https://n8n-production-fee8.up.railway.app`.
+**n8n** 已部署在 `https://n8n-production-fee8.up.railway.app`，无需重新创建。
 
-> OPENROUTER_API_KEY, PINECONE_API_KEY, and all AI/vector credentials are configured **inside n8n workflows**, not in this project. The only n8n-related variable this backend needs is `N8N_WEBHOOK_BASE_URL`.
-
----
-
-## Prerequisites
-
-- Railway account: [railway.app](https://railway.app)
-- Code pushed to GitHub
-- n8n workflows already imported and active (see `docs/n8n-workflows/`)
+> OPENROUTER_API_KEY、PINECONE_API_KEY 等 AI/向量数据库凭证均在 **n8n workflow 内部配置**，与本项目无关。Backend 只需要一个 n8n 相关变量：`N8N_WEBHOOK_BASE_URL`。
 
 ---
 
-## Deployment Steps
+## 前置条件
 
-### Step 1: Create Railway Project
-
-1. Go to [railway.app/new](https://railway.app/new)
-2. Click **"Deploy from GitHub repo"** → select your RagFlow repository
-3. Skip the auto-deploy prompt for now
+- Railway 账号：[railway.app](https://railway.app)
+- 代码已推送到 GitHub
+- n8n workflow 已导入并激活（参考 `docs/n8n-workflows/`）
 
 ---
 
-### Step 2: Add PostgreSQL Database
+## 部署步骤
 
-1. In the project Dashboard click **"+ New"** → **"Database"** → **"Add PostgreSQL"**
-2. Railway automatically generates `DATABASE_URL` and injects it into all services in the same project
-3. Copy `DATABASE_URL` from the Postgres service's Variables panel — you'll need it for the backend
+### 第一步：创建 Railway 项目
+
+1. 打开 [railway.app/new](https://railway.app/new)
+2. 点击 **"Deploy from GitHub repo"** → 选择 RagFlow 仓库
+3. 先跳过自动部署提示
 
 ---
 
-### Step 3: Deploy Backend Service
+### 第二步：添加 PostgreSQL 数据库
 
-1. Click **"+ New"** → **"GitHub Repo"** → select the repository
-2. In **Settings → Build → Config-as-code File Path**, enter:
+1. 在项目 Dashboard 点击 **"+ New"** → **"Database"** → **"Add PostgreSQL"**
+2. Railway 自动生成 `DATABASE_URL`，并注入到同项目的所有服务
+3. 在 Postgres 服务的 Variables 面板复制 `DATABASE_URL` 备用
+
+---
+
+### 第三步：部署 Backend 服务
+
+1. 点击 **"+ New"** → **"GitHub Repo"** → 选择仓库
+2. 进入服务 **Settings → Build**，在 **Custom Build Command** 填写：
    ```
-   apps/backend/railway.json
+   npm install --workspace=packages/database --workspace=apps/backend --legacy-peer-deps && cd packages/database && npx prisma generate && cd ../apps/backend && npm run build
    ```
-   This tells Railway to use the Railpack builder with the correct build/start commands for the monorepo.
-3. In the **Variables** panel, add:
+3. 进入 **Settings → Deploy**，在 **Custom Start Command** 填写：
+   ```
+   cd packages/database && npx prisma migrate deploy && cd ../apps/backend && node dist/main
+   ```
+4. 在 **Variables** 面板添加以下环境变量：
 
-   | Variable | Value | Notes |
-   |----------|-------|-------|
-   | `DATABASE_URL` | *(copy from Postgres plugin)* | Usually auto-injected; add manually if not |
-   | `N8N_WEBHOOK_BASE_URL` | `https://n8n-production-fee8.up.railway.app/webhook` | Your existing n8n instance |
-   | `FRONTEND_URL` | *(fill in after Step 4)* | Frontend domain for CORS |
+   | 变量名 | 值 | 说明 |
+   |--------|----|------|
+   | `DATABASE_URL` | *(从 Postgres 插件复制)* | 通常自动注入，若没有则手动添加 |
+   | `N8N_WEBHOOK_BASE_URL` | `https://n8n-production-fee8.up.railway.app/webhook` | 已有的 n8n 实例 |
+   | `FRONTEND_URL` | *(第四步完成后填写)* | 前端域名，用于 CORS |
    | `NODE_ENV` | `production` | |
 
-4. Click **"Deploy"** and wait for the build to finish
-5. Go to **Settings → Networking** → generate a public domain, e.g. `ragflow-backend-xxx.railway.app`
+5. 点击 **"Deploy"**，等待构建完成
+6. 进入 **Settings → Networking** 生成公开域名，记录下来，例如 `ragflow-backend-xxx.railway.app`
 
 ---
 
-### Step 4: Deploy Frontend Service
+### 第四步：部署 Frontend 服务
 
-1. Click **"+ New"** → **"GitHub Repo"** → select the same repository
-2. In **Settings → Build → Config-as-code File Path**, enter:
+1. 点击 **"+ New"** → **"GitHub Repo"** → 选择同一个仓库
+2. 进入服务 **Settings → Build**，在 **Custom Build Command** 填写：
    ```
-   apps/frontend/railway.json
+   npm install --workspace=apps/frontend --legacy-peer-deps && cd apps/frontend && npm run build
    ```
-3. In the **Variables** panel, add:
+3. 进入 **Settings → Deploy**，在 **Custom Start Command** 填写：
+   ```
+   cd apps/frontend && npm run start
+   ```
+4. 在 **Variables** 面板添加：
 
-   | Variable | Value | Notes |
-   |----------|-------|-------|
-   | `NEXT_PUBLIC_API_URL` | `https://ragflow-backend-xxx.railway.app` | Backend URL from Step 3 |
+   | 变量名 | 值 | 说明 |
+   |--------|----|------|
+   | `NEXT_PUBLIC_API_URL` | `https://ragflow-backend-xxx.railway.app` | 第三步的 Backend 域名 |
    | `NODE_ENV` | `production` | |
 
-   > `NEXT_PUBLIC_API_URL` is baked into the frontend at build time. If you change it, redeploy.
+   > `NEXT_PUBLIC_API_URL` 在构建时被打包进前端代码，**必须在首次构建前设置好**，修改后需重新部署。
 
-4. Click **"Deploy"** and wait for the build to finish
-5. Generate a public domain, e.g. `ragflow-frontend-xxx.railway.app`
+5. 点击 **"Deploy"**，等待构建完成
+6. 生成前端公开域名，记录下来，例如 `ragflow-frontend-xxx.railway.app`
 
 ---
 
-### Step 5: Update CORS on Backend
+### 第五步：回填 Backend 的 CORS 配置
 
-1. Go back to the **Backend** service Variables panel
-2. Set `FRONTEND_URL` to the frontend domain from Step 4:
+1. 回到 **Backend 服务**的 Variables 面板
+2. 将 `FRONTEND_URL` 更新为第四步的前端域名：
    ```
    FRONTEND_URL=https://ragflow-frontend-xxx.railway.app
    ```
-3. Backend will redeploy automatically
+3. Backend 会因变量变更自动重新部署
 
 ---
 
-### Step 6: Verify
+### 第六步：验证部署
 
 ```
-# Check API is up
+# 检查 API 是否正常
 https://ragflow-backend-xxx.railway.app/api/documents
 
-# Open frontend
+# 打开前端
 https://ragflow-frontend-xxx.railway.app
 ```
 
 ---
 
-## Local Development
+## 本地开发
 
-Local env uses `.env` file — completely independent from Railway config.
+本地使用 `.env` 文件，与 Railway 配置完全独立，互不影响。
 
 ```bash
-# Start local PostgreSQL + n8n
+# 启动本地 PostgreSQL + n8n
 docker-compose up -d
 
-# Start dev servers
+# 启动开发服务器
 npm run dev
 ```
 
-See `.env.example` for all variables.
+环境变量参考 `.env.example`。
 
 ---
 
-## Key Files
+## 关键文件说明
+
+构建命令直接在 Railway UI 的 **Custom Build Command / Custom Start Command** 里填写，无需配置文件。
 
 ```
-apps/backend/
-  railway.json    # Railpack build config (install → prisma generate → nest build → migrate → start)
-
-apps/frontend/
-  railway.json    # Railpack build config (install → next build → start)
-
-railway.json      # Project-level Railway config (restart policy)
-.env.example      # Variable reference template
+railway.json      # 项目级 Railway 配置（重启策略等）
+.env.example      # 环境变量模板
 ```
 
 ---
 
-## Troubleshooting
+## 常见问题
 
-**Build fails: cannot find workspace packages**
+**构建失败：找不到 workspace packages**
 
-Check `apps/backend/railway.json` — the buildCommand must install from repo root:
+检查 `apps/backend/railway.json`，buildCommand 必须从仓库根目录执行安装：
 ```json
 "buildCommand": "npm install --workspace=packages/database --workspace=apps/backend --legacy-peer-deps && ..."
 ```
 
-**Prisma migrate fails**
+**Prisma migrate 失败**
 
-Check that `DATABASE_URL` is injected. The Postgres plugin auto-injects it only if the backend service is in the same Railway project.
+检查 `DATABASE_URL` 是否已注入。Postgres 插件只会自动注入到同一个 Railway 项目内的服务。
 
-**Frontend CORS error**
+**前端请求 API 跨域报错**
 
-Make sure backend `FRONTEND_URL` exactly matches the frontend domain (include `https://`, no trailing slash).
+确认 Backend 的 `FRONTEND_URL` 与前端实际域名完全一致（包含 `https://`，末尾不加斜杠）。
 
-**Uploaded files lost after restart**
+**上传的文件重启后消失**
 
-Railway's filesystem is ephemeral — `uploads/` is cleared on restart. For production, migrate file storage to S3 / Cloudflare R2 / Supabase Storage.
+Railway 文件系统是临时的，重启后 `uploads/` 会被清空。生产环境建议迁移至 S3 / Cloudflare R2 / Supabase Storage。

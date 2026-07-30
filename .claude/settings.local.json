@@ -40,7 +40,12 @@
       "Bash(PGPASSWORD=password psql -h localhost -p 5433 -U root -d ragflow_db -c \"ALTER TABLE chat_history ALTER COLUMN \\\\\"documentId\\\\\" DROP NOT NULL;\" 2>&1)",
       "Bash(npx prisma:*)",
       "Bash(PGPASSWORD=password psql -h localhost -p 5433 -U root -d ragflow_db -c \"\nCREATE TABLE IF NOT EXISTS chat_sessions \\(\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid\\(\\),\n  title TEXT NOT NULL,\n  \\\\\"createdAt\\\\\" TIMESTAMP DEFAULT now\\(\\)\n\\);\nALTER TABLE chat_history ADD COLUMN IF NOT EXISTS \\\\\"sessionId\\\\\" UUID REFERENCES chat_sessions\\(id\\) ON DELETE CASCADE;\nCREATE INDEX IF NOT EXISTS chat_history_session_idx ON chat_history\\(\\\\\"sessionId\\\\\"\\);\nCREATE INDEX IF NOT EXISTS chat_sessions_created_idx ON chat_sessions\\(\\\\\"createdAt\\\\\"\\);\n\" 2>&1)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:railpack.com)",
+      "WebFetch(domain:docs.railway.com)",
+      "Bash(npm --workspace=packages/database run db:generate)",
+      "Bash(npm --workspace=apps/backend run build)"
     ]
   }
 }

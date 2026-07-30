@@ -1,7 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../common/prisma.service';
-import { Prisma } from '@prisma/client';
 import { CreateExtractionDto } from './dto/create-extraction.dto';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -30,7 +29,7 @@ export class ExtractionService {
     const job = await this.prisma.extractionJob.create({
       data: {
         documentId: dto.documentId,
-        fields: dto.fields as unknown as Prisma.InputJsonValue,
+        fields: dto.fields as never,
         status: 'processing',
       },
     });
