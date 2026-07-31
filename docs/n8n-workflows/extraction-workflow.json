@@ -63,7 +63,7 @@
           "mode": "list",
           "cachedResultName": "ragflow-docs"
         },
-        "topK": 20,
+        "topK": 8,
         "options": {
           "filter": "={{ $('Parse Input').first().json.documentId ? JSON.stringify({ documentId: { '$eq': $('Parse Input').first().json.documentId } }) : '' }}"
         }
@@ -113,7 +113,7 @@
     },
     {
       "parameters": {
-        "model": "qwen/qwen-2.5-72b-instruct",
+        "model": "google/gemini-2.0-flash-001",
         "options": {}
       },
       "id": "node-e-006",

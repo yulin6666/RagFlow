@@ -54,7 +54,7 @@ export class ExtractionService {
     const response = await axios.post(
       `${this.n8nWebhookBase}/extract`,
       { jobId, documentId, fields },
-      { timeout: 60000 },
+      { timeout: 180000 },
     );
 
     const result = response.data?.result ?? {};
