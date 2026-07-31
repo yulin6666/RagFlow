@@ -32,7 +32,7 @@ export class ChatService {
       const response = await axios.post(
         `${this.n8nWebhookUrl}/rag-query`,
         { question, documentId: documentId || null },
-        { timeout: 30000 },
+        { timeout: 120000 },
       );
 
       const { answer, sources } = response.data;
