@@ -9,6 +9,7 @@ import * as path from 'path';
 export class DocumentsService {
   private readonly uploadDir: string;
   private readonly n8nWebhookUrl: string;
+  private readonly backendUrl: string;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -16,6 +17,7 @@ export class DocumentsService {
   ) {
     this.uploadDir = path.join(process.cwd(), 'uploads');
     this.n8nWebhookUrl = this.configService.get('N8N_WEBHOOK_BASE_URL');
+    this.backendUrl = this.configService.get('BACKEND_URL') || 'http://host.docker.internal:3001';
 
     // Create uploads directory if it doesn't exist
     if (!fs.existsSync(this.uploadDir)) {
@@ -58,7 +60,7 @@ export class DocumentsService {
 
         await axios.post(`${this.n8nWebhookUrl}/process-pdf`, {
           documentId: document.id,
-          fileUrl: `http://host.docker.internal:3001${fileUrl}`,
+          fileUrl: `${this.backendUrl}${fileUrl}`,
           filename: file.originalname,
         });
       } catch (error) {
