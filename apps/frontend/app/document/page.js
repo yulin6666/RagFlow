@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ChatInterface from '../components/ChatInterface';
 import ExtractionPanel from '../components/ExtractionPanel';
 
-export default function DocumentPage() {
+function DocumentContent() {
   const searchParams = useSearchParams();
   const docId = searchParams.get('id');
   const [tab, setTab] = useState('chat');
@@ -55,5 +55,13 @@ export default function DocumentPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DocumentPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-16 text-gray-400">Loading...</div>}>
+      <DocumentContent />
+    </Suspense>
   );
 }

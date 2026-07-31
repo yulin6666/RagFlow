@@ -45,7 +45,8 @@
       "WebFetch(domain:railpack.com)",
       "WebFetch(domain:docs.railway.com)",
       "Bash(npm --workspace=packages/database run db:generate)",
-      "Bash(npm --workspace=apps/backend run build)"
+      "Bash(npm --workspace=apps/backend run build)",
+      "Bash(npm --workspace=apps/frontend run build)"
     ]
   }
 }

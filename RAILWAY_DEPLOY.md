@@ -47,11 +47,11 @@ Railway 上部署 **3 个服务**：
 1. 点击 **"+ New"** → **"GitHub Repo"** → 选择仓库
 2. 进入服务 **Settings → Build**，在 **Custom Build Command** 填写：
    ```
-   npm install --workspace=packages/database --workspace=apps/backend --legacy-peer-deps && cd packages/database && npx prisma generate && cd ../apps/backend && npm run build
+   npm install --workspace=packages/database --workspace=apps/backend --legacy-peer-deps && npm --workspace=packages/database run db:generate && npm --workspace=apps/backend run build
    ```
 3. 进入 **Settings → Deploy**，在 **Custom Start Command** 填写：
    ```
-   cd packages/database && npx prisma migrate deploy && cd ../apps/backend && node dist/main
+   npm --workspace=packages/database run db:migrate:deploy && node apps/backend/dist/main
    ```
 4. 在 **Variables** 面板添加以下环境变量：
 
