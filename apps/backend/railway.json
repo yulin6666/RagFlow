@@ -5,7 +5,7 @@
     "buildCommand": "npm install --workspace=packages/database --workspace=apps/backend --legacy-peer-deps && cd packages/database && npx prisma generate && cd ../apps/backend && npm run build"
   },
   "deploy": {
-    "preDeployCommand": "cd packages/database && npx prisma migrate deploy",
+    "preDeployCommand": "npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma",
     "startCommand": "node apps/backend/dist/main",
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
