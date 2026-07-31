@@ -10,9 +10,9 @@ Railway 上部署 **3 个服务**：
 | `ragflow-frontend` | GitHub 仓库 | Next.js 前端 |
 | `Postgres` | Railway 插件 | 托管 PostgreSQL 数据库 |
 
-**n8n** 已部署在 `https://n8n-production-fee8.up.railway.app`，无需重新创建。
+**n8n** 已部署在 `https://n8n-production-fee8.up.railway.app`，需要导入 workflow 并配置凭证后才能使用。
 
-> OPENROUTER_API_KEY、PINECONE_API_KEY 等 AI/向量数据库凭证均在 **n8n workflow 内部配置**，与本项目无关。Backend 只需要一个 n8n 相关变量：`N8N_WEBHOOK_BASE_URL`。
+> OPENROUTER_API_KEY、PINECONE_API_KEY 等凭证均在 **n8n 内部配置**，不需要写入 Backend 环境变量。
 
 ---
 
@@ -20,7 +20,10 @@ Railway 上部署 **3 个服务**：
 
 - Railway 账号：[railway.app](https://railway.app)
 - 代码已推送到 GitHub
-- n8n workflow 已导入并激活（参考 `docs/n8n-workflows/`）
+- 准备好以下 API Key：
+  - [OpenRouter](https://openrouter.ai) API Key（用于 LLM 对话）
+  - [OpenAI](https://platform.openai.com) API Key（用于向量 Embedding）
+  - [Pinecone](https://app.pinecone.io) API Key + Index（用于向量存储）
 
 ---
 
@@ -37,8 +40,56 @@ Railway 上部署 **3 个服务**：
 ### 第二步：添加 PostgreSQL 数据库
 
 1. 在项目 Dashboard 点击 **"+ New"** → **"Database"** → **"Add PostgreSQL"**
-2. Railway 自动生成 `DATABASE_URL`，并注入到同项目的所有服务
-3. 在 Postgres 服务的 Variables 面板复制 `DATABASE_URL` 备用
+2. Railway 自动生成两个连接串，在 Postgres 服务的 **Variables** 面板可以看到：
+   - `DATABASE_URL` — **内网地址**，仅同项目的 Backend 服务使用
+   - `DATABASE_PUBLIC_URL` — **公网地址**，n8n（不同项目）使用这个
+3. 分别复制两个值备用
+
+---
+
+### 第三步：配置 n8n Workflow
+
+打开 [https://n8n-production-fee8.up.railway.app](https://n8n-production-fee8.up.railway.app)，完成以下操作：
+
+#### 3.1 配置凭证（Credentials）
+
+进入 **Settings → Credentials → Add Credential**，依次添加：
+
+| 凭证名称 | 类型 | 填写内容 |
+|----------|------|----------|
+| OpenRouter | `OpenAI API` | Base URL: `https://openrouter.ai/api/v1`，API Key: 你的 OpenRouter Key |
+| OpenAI Embeddings | `OpenAI API` | API Key: 你的 OpenAI Key（用于 text-embedding-3-small） |
+| Pinecone | `Pinecone API` | API Key: 你的 Pinecone Key |
+| PostgreSQL | `Postgres` | 填入第二步的数据库连接信息 |
+
+#### 3.2 导入三个 Workflow
+
+依次导入 `docs/n8n-workflows/` 目录下的三个文件：
+
+1. **Workflows → Import from File**
+   - `pdf-processing-workflow.json` — PDF 上传后的向量化处理
+   - `rag-query-workflow.json` — 用户问答检索
+   - `extraction-workflow.json` — 字段结构化提取
+
+#### 3.3 绑定凭证
+
+每个导入的 workflow 里，点击用到外部服务的节点，将凭证下拉框选为上面创建的对应凭证：
+- Pinecone 节点 → 选 Pinecone 凭证
+- Embeddings OpenAI 节点 → 选 OpenAI Embeddings 凭证
+- OpenRouter Chat Model 节点 → 选 OpenRouter 凭证
+- Postgres Chat Memory / Update DB Status 节点 → 选 PostgreSQL 凭证
+
+#### 3.4 激活 Workflow
+
+三个 workflow 右上角都切换为 **Active**（绿色），记录每个 workflow 的 Webhook URL，格式为：
+```
+https://n8n-production-fee8.up.railway.app/webhook/xxx
+```
+
+> Webhook 路径会在 Backend 的 `N8N_WEBHOOK_BASE_URL` 变量中使用，路径固定为：
+> - `/webhook/process-pdf`
+> - `/webhook/rag-query`
+> - `/webhook/extract`
 
 ---
 
